@@ -1,0 +1,7 @@
+{
+  "wet_register": "r0",
+  "temp_register": "r1",
+  "wet_threshold": 10.0,
+  "dose_unit": "sprays",
+  "overnight_sample_s": 10
+}

@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="zh-Hant" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaf Sensor Bench</title>
+<meta name="description" content="iGEM 2026 · RS485 leaf temperature / wetness sensor: parts, assembly, bench calibration and wiki data.">
+<style>
+:root{
+  --bg:#ffffff; --alt:#f5f5f7; --text:#1d1d1f; --muted:#6e6e73; --line:#d2d2d7;
+  --blue:#0071e3; --green:#34c759; --orange:#ff9500; --red:#ff3b30; --purple:#af52de; --yellow:#ffcc00;
+  --radius:20px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","PingFang TC","Helvetica Neue","Noto Sans TC",Arial,sans-serif;
+  font-size:17px;line-height:1.55;letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+html[data-lang="zh"] .en, html[data-lang="en"] .zh{display:none!important}
+a{color:var(--blue);text-decoration:none} a:hover{text-decoration:underline}
+code,pre{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.86em}
+code{background:var(--alt);padding:.1em .4em;border-radius:6px;overflow-wrap:anywhere}
+ol.steps span,td,p{overflow-wrap:anywhere}
+pre{background:#1d1d1f;color:#f5f5f7;padding:16px 18px;border-radius:14px;overflow-x:auto;line-height:1.5;margin:12px 0}
+pre code{background:none;padding:0;color:inherit;overflow-wrap:normal}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+
+/* nav */
+nav.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(0,0,0,.08)}
+nav.top .wrap{display:flex;align-items:center;gap:18px;height:52px}
+nav.top .brand{font-weight:600;font-size:15px;white-space:nowrap}
+nav.top .links{display:flex;gap:16px;overflow-x:auto;flex:1;scrollbar-width:none}
+nav.top .links::-webkit-scrollbar{display:none}
+nav.top .links a{color:var(--text);font-size:13px;opacity:.8;white-space:nowrap}
+.seg{display:inline-flex;background:var(--alt);border-radius:999px;padding:3px;flex-shrink:0}
+.seg button{border:0;background:transparent;font:inherit;font-size:13px;padding:4px 12px;border-radius:999px;cursor:pointer;color:var(--text)}
+.seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+
+/* hero */
+.hero{text-align:center;padding:84px 0 56px}
+.eyebrow{color:var(--orange);font-weight:600;font-size:15px;letter-spacing:0}
+.hero h1{font-size:clamp(38px,6.4vw,68px);line-height:1.05;letter-spacing:-.035em;margin:10px 0 16px;font-weight:700}
+.hero p.lead{font-size:clamp(18px,2.2vw,23px);color:var(--muted);max-width:760px;margin:0 auto;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:44px}
+.stat{background:var(--alt);border-radius:var(--radius);padding:20px 16px;text-align:left}
+.stat b{display:block;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.stat span{color:var(--muted);font-size:14px}
+
+section{padding:76px 0;border-top:1px solid #eee}
+section.alt{background:var(--alt);border-top:0}
+h2{font-size:clamp(30px,4.2vw,46px);letter-spacing:-.03em;line-height:1.1;margin:0 0 10px}
+h2 small{display:block;font-size:15px;color:var(--orange);letter-spacing:0;font-weight:600;margin-bottom:8px}
+h3{font-size:22px;letter-spacing:-.02em;margin:0 0 6px}
+.sub{color:var(--muted);font-size:19px;max-width:760px;margin:0 0 34px}
+
+.card{background:#fff;border-radius:var(--radius);padding:22px;box-shadow:0 2px 14px rgba(0,0,0,.06)}
+section:not(.alt) .card{background:var(--alt);box-shadow:none}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+
+/* parts */
+.part{display:flex;flex-direction:column;gap:8px}
+.part .pic{height:118px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:14px}
+section.alt .part .pic{background:var(--alt)}
+.part .pic svg{max-height:100px;max-width:88%}
+.part h4{margin:4px 0 0;font-size:16px;letter-spacing:-.01em}
+.part p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qty{font-weight:600;font-size:15px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.t-use{background:#e8f8ec;color:#1a7f37} .t-spare{background:#eef0f3;color:#57606a} .t-later{background:#fff4e0;color:#a35a00}
+.t-have{background:#e8f1fd;color:#0b57b8} .t-buy{background:#ffe9e7;color:#c0261b}
+.filter{display:flex;gap:8px;flex-wrap:wrap;margin:-14px 0 24px}
+.filter button{border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;padding:6px 14px;border-radius:999px;cursor:pointer}
+.filter button.on{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* callouts */
+.note{border-radius:16px;padding:16px 18px;margin:16px 0;font-size:16px}
+.note b:first-child{margin-right:4px}
+.n-blue{background:#e8f1fd} .n-green{background:#e8f8ec} .n-orange{background:#fff4e0} .n-red{background:#ffe9e7}
+
+/* steps */
+ol.steps{list-style:none;padding:0;margin:0;counter-reset:s}
+ol.steps>li{counter-increment:s;position:relative;padding:14px 0 14px 54px;border-bottom:1px solid #e8e8ed}
+ol.steps>li:last-child{border-bottom:0}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:13px;width:34px;height:34px;border-radius:50%;
+  background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px}
+ol.steps label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+ol.steps input[type=checkbox]{margin-top:5px;width:18px;height:18px;accent-color:var(--green);flex-shrink:0}
+ol.steps li.done{opacity:.55}
+
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #e5e5ea;vertical-align:top}
+th{font-size:13px;color:var(--muted);font-weight:600;text-transform:none}
+.tbl{overflow-x:auto;border-radius:16px;background:#fff;padding:4px 8px}
+section:not(.alt) .tbl{background:var(--alt)}
+td input{width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:14px;background:#fff}
+
+.diagram{background:#fff;border-radius:var(--radius);padding:18px;box-shadow:0 2px 14px rgba(0,0,0,.06)}
+.diagram svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* tests */
+.timeline{display:flex;border-radius:14px;overflow:hidden;margin:0 0 30px;font-size:13px;font-weight:600;color:#fff}
+.timeline div{padding:12px 10px;text-align:center;min-width:0}
+.test{margin-bottom:22px}
+.test .head{display:flex;gap:14px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.badge{font-weight:700;font-size:14px;color:#fff;border-radius:10px;padding:5px 10px}
+.meta{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-bottom:12px}
+.test .cols{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start}
+.test figure{margin:0}
+.test figure img{width:100%;border-radius:12px;background:#fff;border:1px solid #eee}
+.test figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+.sim{display:inline-block;background:#fff4e0;color:#a35a00;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;margin-right:6px}
+.mk{font-family:"SF Mono",ui-monospace,Menlo,monospace;background:#1d1d1f;color:#fff;border-radius:6px;padding:1px 7px;font-size:13px}
+.pass{font-size:15px;margin-top:10px}
+.pass b{color:#1a7f37}
+details{border-radius:14px;background:#fff;padding:12px 16px;margin:10px 0}
+section:not(.alt) details{background:var(--alt)}
+summary{cursor:pointer;font-weight:600}
+
+.fig-list .card h4{margin:0 0 4px;font-size:17px}
+.fig-list .card p{margin:0;color:var(--muted);font-size:14.5px}
+.fnum{font-size:13px;font-weight:700;color:var(--blue)}
+
+footer{padding:40px 0 70px;color:var(--muted);font-size:13px;text-align:center}
+
+@media (max-width:860px){
+  .g3,.g4{grid-template-columns:repeat(2,1fr)} .stats{grid-template-columns:repeat(2,1fr)}
+  .test .cols{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .g2,.g3,.g4{grid-template-columns:1fr} .wrap{padding:0 16px}
+  nav.top .links{display:none} .hero{padding:56px 0 40px}
+  .timeline{flex-wrap:wrap} .timeline div{flex:1 1 33%!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="wrap">
+  <div class="brand">Leaf Sensor Bench</div>
+  <div class="links">
+    <a href="#parts"><span class="zh">品項</span><span class="en">Parts</span></a>
+    <a href="#spec"><span class="zh">規格卡</span><span class="en">Spec card</span></a>
+    <a href="#assemble"><span class="zh">組裝</span><span class="en">Assemble</span></a>
+    <a href="#flash"><span class="zh">燒錄</span><span class="en">Flash</span></a>
+    <a href="#tests"><span class="zh">測試</span><span class="en">Tests</span></a>
+    <a href="#wiki"><span class="zh">Wiki 數據</span><span class="en">Wiki data</span></a>
+    <a href="#model"><span class="zh">模型連結</span><span class="en">Model link</span></a>
+    <a href="#trouble"><span class="zh">疑難排解</span><span class="en">Troubleshoot</span></a>
+  </div>
+  <div class="seg" role="group" aria-label="Language">
+    <button data-set="zh" class="on">中文</button><button data-set="en">EN</button>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">iGEM 2026 · AIoT Sensors</div>
+  <h1><span class="zh">葉面溫濕度感測器<br>實驗台校正</span><span class="en">Leaf wetness sensor,<br>bench-calibrated.</span></h1>
+  <p class="lead">
+    <span class="zh">從開箱到 wiki 圖表，一天內完成。只在室內做：不焊接、不下田。照著順序做，每一步都有勾選框，進度會自動記住。</span>
+    <span class="en">From unboxing to wiki figures in one day. Indoors only: no soldering, no field work. Follow the order. Every step has a checkbox, and your progress is saved in this browser.</span>
+  </p>
+  <div class="stats">
+    <div class="stat"><b>0</b><span class="zh">焊接點</span><span class="en">solder joints</span></div>
+    <div class="stat"><b>6</b><span class="zh">項測試（T0、C1–C4、T5）</span><span class="en">tests (T0, C1–C4, T5)</span></div>
+    <div class="stat"><b>~6 h</b><span class="zh">＋一晚自動記錄</span><span class="en">+ one overnight log</span></div>
+    <div class="stat"><b>8</b><span class="zh">張 wiki 圖 + 1 張表</span><span class="en">wiki figures + 1 table</span></div>
+  </div>
+</div></header>
+
+<!-- ============ GOAL ============ -->
+<section class="alt"><div class="wrap">
+  <h2><small><span class="zh">目標</span><span class="en">Goal</span></small>
+    <span class="zh">我們要回答的四個問題</span><span class="en">Four questions we answer</span></h2>
+  <p class="sub"><span class="zh">這顆感測器量的是「仿葉片表面有沒有水膜」，不是空氣濕度。它的「葉面濕度 %」是電容讀數，沒有物理單位，所以必須自己校正出乾／濕的門檻。</span>
+  <span class="en">This sensor measures whether a water film covers an artificial leaf. It does not measure air humidity. Its "leaf humidity %" is a unitless capacitance reading, so we have to calibrate our own wet/dry threshold.</span></p>
+  <div class="grid g4">
+    <div class="card"><h3>①</h3><span class="zh">讀數可靠嗎？溫度和 SHT 參考差多少？雜訊多大？</span><span class="en">Is the reading reliable? How far is its temperature from the SHT reference? How noisy is it?</span></div>
+    <div class="card"><h3>②</h3><span class="zh">只有潮濕空氣、葉面沒有水時，會不會誤判成「濕」？</span><span class="en">Does humid air alone, with no water on the leaf, read as "wet"?</span></div>
+    <div class="card"><h3>③</h3><span class="zh">多少水算濕？乾／濕門檻是多少？乾燥要多久？</span><span class="en">How much water counts as wet? What is the threshold? How long does drying take?</span></div>
+    <div class="card"><h3>④</h3><span class="zh">露水物理對嗎？葉溫低於露點時才變濕嗎？</span><span class="en">Does it follow dew physics, getting wet only when leaf temperature drops below the dew point?</span></div>
+  </div>
+</div></section>
+
+<!-- ============ PARTS ============ -->
+<section id="parts"><div class="wrap">
+  <h2><small>01</small><span class="zh">所有品項</span><span class="en">Every part</span></h2>
+  <p class="sub"><span class="zh">兩筆訂單（造物人、環島科技）＋明天到貨的感測器＋實驗室已經有的東西。標籤告訴你今天用不用得到。</span>
+  <span class="en">Two orders (造物人 and 環島科技), the sensor arriving tomorrow, and things already in the lab. The tag says whether you need it today.</span></p>
+  <div class="filter" id="pf">
+    <button data-f="all" class="on"><span class="zh">全部</span><span class="en">All</span></button>
+    <button data-f="use"><span class="zh">今天使用</span><span class="en">Use today</span></button>
+    <button data-f="have"><span class="zh">實驗室已有</span><span class="en">Already in lab</span></button>
+    <button data-f="spare"><span class="zh">備品／之後</span><span class="en">Spare / later</span></button>
+  </div>
+  <div class="grid g4" id="partsGrid">
+
+    <div class="card part" data-k="use">
+      <div class="pic"><svg viewBox="0 0 160 100"><path d="M30 80 C30 35 75 12 132 14 C130 70 92 90 30 80Z" fill="#34c759"/><g stroke="#e8f8ec" stroke-width="2" fill="none"><path d="M48 70 L118 24"/><path d="M58 76 L124 34"/><path d="M42 60 L106 20"/><path d="M72 80 L128 46"/></g><rect x="14" y="74" width="26" height="14" rx="4" fill="#1d1d1f"/><path d="M14 81 C2 81 4 95 -4 96" stroke="#1d1d1f" stroke-width="4" fill="none"/></svg></div>
+      <div class="row"><h4><span class="zh">RS485 葉面溫濕度感測器</span><span class="en">RS485 leaf temp / wetness sensor</span></h4><span class="qty">×1</span></div>
+      <p><span class="zh">主角。仿葉片電容格板＋溫度。Modbus RTU 輸出。明天到貨。</span><span class="en">The star. Capacitive artificial leaf + temperature, Modbus RTU output. Arrives tomorrow.</span></p>
+      <span class="tag t-use"><span class="zh">今天使用</span><span class="en">Use today</span></span>
+    </div>
+
+    <div class="card part" data-k="use">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="30" y="18" width="100" height="64" rx="6" fill="#1d1d1f"/><rect x="44" y="28" width="48" height="40" rx="3" fill="#8e8e93"/><path d="M98 30 h22 v8 h-16 v8 h16 v8 h-22" stroke="#d4af37" stroke-width="3" fill="none"/><rect x="22" y="44" width="10" height="12" rx="2" fill="#c7c7cc"/><g fill="#d4af37"><rect x="36" y="14" width="3" height="6"/><rect x="46" y="14" width="3" height="6"/><rect x="56" y="14" width="3" height="6"/><rect x="66" y="14" width="3" height="6"/><rect x="76" y="14" width="3" height="6"/><rect x="86" y="14" width="3" height="6"/><rect x="96" y="14" width="3" height="6"/><rect x="106" y="14" width="3" height="6"/><rect x="116" y="14" width="3" height="6"/><rect x="36" y="80" width="3" height="6"/><rect x="46" y="80" width="3" height="6"/><rect x="56" y="80" width="3" height="6"/><rect x="66" y="80" width="3" height="6"/><rect x="76" y="80" width="3" height="6"/><rect x="86" y="80" width="3" height="6"/><rect x="96" y="80" width="3" height="6"/><rect x="106" y="80" width="3" height="6"/><rect x="116" y="80" width="3" height="6"/></g></svg></div>
+      <div class="row"><h4><span class="zh">ESP32 Type-C 開發板</span><span class="en">ESP32 Type-C dev board</span></h4><span class="qty">×2</span></div>
+      <p><span class="zh">大腦。用 1 片，另 1 片備用。有 WiFi，3.3 V 邏輯。</span><span class="en">The brain. Use one, keep one spare. WiFi, 3.3 V logic.</span></p>
+      <span class="tag t-use"><span class="zh">今天使用 1 片</span><span class="en">Use 1 today</span></span>
+    </div>
+
+    <div class="card part" data-k="use">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="14" y="14" width="132" height="72" rx="6" fill="#1d1d1f"/><rect x="40" y="30" width="80" height="40" rx="3" fill="#3a3a3c" stroke="#636366" stroke-dasharray="4 3"/><g fill="#0a84ff"><rect x="20" y="20" width="12" height="60" rx="2"/><rect x="128" y="20" width="12" height="60" rx="2"/></g><g fill="#c7c7cc"><circle cx="26" cy="28" r="2.5"/><circle cx="26" cy="40" r="2.5"/><circle cx="26" cy="52" r="2.5"/><circle cx="26" cy="64" r="2.5"/><circle cx="134" cy="28" r="2.5"/><circle cx="134" cy="40" r="2.5"/><circle cx="134" cy="52" r="2.5"/><circle cx="134" cy="64" r="2.5"/></g><rect x="66" y="74" width="28" height="9" rx="2" fill="#636366"/></svg></div>
+      <div class="row"><h4><span class="zh">ESP32 擴充板</span><span class="en">ESP32 expansion board</span></h4><span class="qty">×2</span></div>
+      <p><span class="zh">ESP32 插上去後，每支腳都有公排針，所以免焊。若有電壓跳帽，設 3.3 V。</span><span class="en">The ESP32 plugs in and every pin gets a male header, so no soldering. If it has a voltage jumper, set it to 3.3 V.</span></p>
+      <span class="tag t-use"><span class="zh">今天使用 1 片</span><span class="en">Use 1 today</span></span>
+    </div>
+
+    <div class="card part" data-k="use">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="24" y="22" width="112" height="56" rx="5" fill="#e0352b"/><rect x="104" y="30" width="26" height="40" rx="3" fill="#0a84ff"/><circle cx="117" cy="40" r="5" fill="#c7c7cc"/><circle cx="117" cy="60" r="5" fill="#c7c7cc"/><g fill="#d4af37"><rect x="14" y="30" width="14" height="3"/><rect x="14" y="42" width="14" height="3"/><rect x="14" y="54" width="14" height="3"/><rect x="14" y="66" width="14" height="3"/></g><rect x="52" y="38" width="30" height="24" rx="2" fill="#1d1d1f"/><text x="96" y="92" font-size="10" fill="#6e6e73">A+ B−</text><text x="8" y="92" font-size="10" fill="#6e6e73">VCC TXD RXD GND</text></svg></div>
+      <div class="row"><h4><span class="zh">TTL 轉 RS485 模組（自動流向）</span><span class="en">TTL→RS485 module (auto direction)</span></h4><span class="qty">×3</span></div>
+      <p><span class="zh">翻譯官：ESP32 的 UART ↔ 感測器的 RS485。A/B 端是螺絲端子。用 1 個。</span><span class="en">The translator between the ESP32 UART and the sensor's RS485. A/B are screw terminals. Use 1.</span></p>
+      <span class="tag t-use"><span class="zh">今天使用 1 個</span><span class="en">Use 1 today</span></span>
+    </div>
+
+    <div class="card part" data-k="use">
+      <div class="pic"><svg viewBox="0 0 160 100"><g fill="none" stroke-width="4" stroke-linecap="round"><path d="M20 30 C70 10 90 60 140 40" stroke="#ff3b30"/><path d="M20 42 C70 22 90 72 140 52" stroke="#1d1d1f"/><path d="M20 54 C70 34 90 84 140 64" stroke="#ffcc00"/><path d="M20 66 C70 46 90 96 140 76" stroke="#34c759"/></g><g fill="#1d1d1f"><rect x="10" y="24" width="12" height="48" rx="2"/><rect x="138" y="34" width="12" height="48" rx="2"/></g></svg></div>
+      <div class="row"><h4><span class="zh">杜邦線 10 cm 母對母</span><span class="en">Jumper wires 10 cm, F–F</span></h4><span class="qty">×2 <small>(10/pk)</small></span></div>
+      <p><span class="zh">擴充板公針 ↔ RS485 模組公針、SHT 公針。剛好是母對母。</span><span class="en">Male header on the expansion board ↔ male pins on the RS485 module and SHT. F–F is exactly right.</span></p>
+      <span class="tag t-use"><span class="zh">今天使用</span><span class="en">Use today</span></span>
+    </div>
+
+    <div class="card part" data-k="use">
+      <div class="pic"><svg viewBox="0 0 160 100"><path d="M30 50 C30 20 130 80 130 50" stroke="#1d1d1f" stroke-width="5" fill="none"/><rect x="10" y="42" width="24" height="16" rx="4" fill="#8e8e93"/><rect x="126" y="44" width="22" height="12" rx="5" fill="#8e8e93"/><text x="6" y="80" font-size="11" fill="#6e6e73">USB-A</text><text x="118" y="80" font-size="11" fill="#6e6e73">Type-C</text></svg></div>
+      <div class="row"><h4><span class="zh">Type-C 2 m 傳輸線</span><span class="en">USB-C cable, 2 m</span></h4><span class="qty">×2</span></div>
+      <p><span class="zh">供電＋燒錄＋資料。若電腦只有 USB-C，需要轉接頭。</span><span class="en">Power, flashing and data. If the laptop only has USB-C ports, use an adapter.</span></p>
+      <span class="tag t-use"><span class="zh">今天使用</span><span class="en">Use today</span></span>
+    </div>
+
+    <div class="card part" data-k="have">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="46" y="20" width="68" height="60" rx="5" fill="#5e5ce6"/><rect x="68" y="38" width="24" height="24" rx="3" fill="#f5f5f7"/><g fill="#d4af37"><rect x="52" y="78" width="4" height="12"/><rect x="66" y="78" width="4" height="12"/><rect x="80" y="78" width="4" height="12"/><rect x="94" y="78" width="4" height="12"/></g><text x="44" y="16" font-size="10" fill="#6e6e73">VIN GND SCL SDA</text></svg></div>
+      <div class="row"><h4><span class="zh">SHT31 或 SHT40 模組</span><span class="en">SHT31 or SHT40 module</span></h4><span class="qty">×1</span></div>
+      <p><span class="zh">參考標準：空氣溫度與濕度，算露點用。先確認是 31 還是 40。</span><span class="en">The reference: air temperature and RH, used to compute dew point. Check whether it is a 31 or a 40.</span></p>
+      <span class="tag t-have"><span class="zh">實驗室已有</span><span class="en">In lab</span></span>
+    </div>
+
+    <div class="card part" data-k="have">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="52" y="34" width="56" height="56" rx="18" fill="#e5e5ea"/><rect x="72" y="22" width="16" height="16" rx="4" fill="#c7c7cc"/><g fill="none" stroke="#8ec5ff" stroke-width="3" stroke-linecap="round"><path d="M74 16 C68 8 78 4 72 -4"/><path d="M86 16 C80 8 90 4 84 -4"/></g><circle cx="80" cy="66" r="6" fill="#0a84ff"/></svg></div>
+      <div class="row"><h4><span class="zh">加濕器</span><span class="en">Humidifier</span></h4><span class="qty">×1</span></div>
+      <p><span class="zh">C1、C4 用來把空氣濕度拉高。請用純水或蒸餾水，自來水會留白色粉末。</span><span class="en">Raises air humidity in C1 and C4. Use purified or distilled water; tap water leaves white dust.</span></p>
+      <span class="tag t-have"><span class="zh">實驗室已有</span><span class="en">In lab</span></span>
+    </div>
+
+    <div class="card part" data-k="have">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="22" y="34" width="116" height="54" rx="8" fill="#f2f2f7" stroke="#aeaeb2" stroke-width="2"/><rect x="16" y="24" width="128" height="14" rx="5" fill="#d1d1d6"/><rect x="46" y="12" width="22" height="16" rx="3" fill="#8ec5ff" opacity=".7"/><text x="34" y="66" font-size="12" fill="#6e6e73">10–30 L</text></svg></div>
+      <div class="row"><h4><span class="zh">附蓋收納箱（濕度箱）</span><span class="en">Lidded storage box (chamber)</span></h4><span class="qty">×1</span></div>
+      <p><span class="zh">透明塑膠箱 10–30 L，蓋子挖一個孔讓加濕器的霧進去、線出來。</span><span class="en">Clear plastic box, 10–30 L. Cut one hole in the lid for the humidifier mist and the cables.</span></p>
+      <span class="tag t-have"><span class="zh">準備</span><span class="en">Prepare</span></span>
+    </div>
+
+    <div class="card part" data-k="have">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="62" y="40" width="36" height="52" rx="8" fill="#8ec5ff" opacity=".6" stroke="#0a84ff" stroke-width="2"/><rect x="70" y="22" width="20" height="20" rx="3" fill="#1d1d1f"/><path d="M90 28 h22" stroke="#1d1d1f" stroke-width="5"/><g fill="#0a84ff"><circle cx="124" cy="22" r="2"/><circle cx="130" cy="30" r="2"/><circle cx="126" cy="36" r="2"/></g></svg></div>
+      <div class="row"><h4><span class="zh">噴霧瓶、紙巾、純水</span><span class="en">Spray bottle, tissue, purified water</span></h4><span class="qty">—</span></div>
+      <p><span class="zh">C2、C3 用來定量加水。若有微量吸管（pipette）更好，單位改成 µL。</span><span class="en">For dosing water in C2 and C3. A pipette is even better; switch the unit to µL.</span></p>
+      <span class="tag t-have"><span class="zh">準備</span><span class="en">Prepare</span></span>
+    </div>
+
+    <div class="card part" data-k="have">
+      <div class="pic"><svg viewBox="0 0 160 100"><circle cx="64" cy="48" r="34" fill="#f2f2f7" stroke="#aeaeb2" stroke-width="2"/><g fill="#c7c7cc"><ellipse cx="64" cy="30" rx="7" ry="16"/><ellipse cx="80" cy="56" rx="16" ry="7" transform="rotate(30 80 56)"/><ellipse cx="48" cy="56" rx="16" ry="7" transform="rotate(-30 48 56)"/></g><circle cx="64" cy="48" r="5" fill="#636366"/><rect x="104" y="20" width="40" height="66" rx="6" fill="#e5e5ea" stroke="#aeaeb2"/><text x="112" y="58" font-size="11" fill="#6e6e73">4 °C</text></svg></div>
+      <div class="row"><h4><span class="zh">小電扇、冰箱、手機計時／拍照</span><span class="en">Small fan, fridge, phone timer/camera</span></h4><span class="qty">—</span></div>
+      <p><span class="zh">C3 乾燥用電扇；C4 用冰箱把感測器冰到 4 °C；手機每分鐘拍一張。</span><span class="en">Fan for C3 drying; fridge to chill the sensor to 4 °C for C4; phone photo every minute.</span></p>
+      <span class="tag t-have"><span class="zh">準備</span><span class="en">Prepare</span></span>
+    </div>
+
+    <div class="card part" data-k="have">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="40" y="10" width="80" height="80" rx="10" fill="#ffcc00"/><rect x="52" y="20" width="56" height="24" rx="3" fill="#2c2c2e"/><text x="58" y="38" font-size="15" fill="#34c759" font-family="monospace">12.0</text><circle cx="80" cy="66" r="12" fill="#2c2c2e"/></svg></div>
+      <div class="row"><h4><span class="zh">三用電表、筆電</span><span class="en">Multimeter, laptop</span></h4><span class="qty">—</span></div>
+      <p><span class="zh">電表量供電電壓；筆電裝 Arduino IDE ＋ Python 3。</span><span class="en">Multimeter to check supply voltage. Laptop with Arduino IDE + Python 3.</span></p>
+      <span class="tag t-have"><span class="zh">準備</span><span class="en">Prepare</span></span>
+    </div>
+
+    <div class="card part" data-k="have">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="36" y="30" width="56" height="40" rx="8" fill="#1d1d1f"/><path d="M92 50 C110 50 112 70 132 70" stroke="#1d1d1f" stroke-width="4" fill="none"/><circle cx="136" cy="70" r="6" fill="#8e8e93"/><text x="46" y="55" font-size="13" fill="#fff">12V</text></svg></div>
+      <div class="row"><h4><span class="zh">12 V 變壓器＋DC 母頭轉端子</span><span class="en">12 V adapter + DC-jack-to-terminal</span></h4><span class="qty">?</span></div>
+      <p><span class="zh">只有在感測器標示最低電壓 ≥ 7 V 時才需要（見規格卡）。實驗室若沒有要補買。</span><span class="en">Only needed if the sensor's minimum voltage is ≥ 7 V (see spec card). Buy one if the lab has none.</span></p>
+      <span class="tag t-buy"><span class="zh">看規格決定</span><span class="en">Depends on spec</span></span>
+    </div>
+
+    <div class="card part" data-k="spare">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="18" y="20" width="124" height="60" rx="5" fill="#0a7e8c"/><rect x="24" y="30" width="30" height="20" rx="2" fill="#c7c7cc"/><rect x="80" y="44" width="44" height="18" rx="2" fill="#1d1d1f"/><g fill="#1d1d1f"><rect x="60" y="22" width="76" height="5"/><rect x="70" y="73" width="66" height="5"/></g><rect x="24" y="58" width="16" height="16" rx="3" fill="#1d1d1f"/></svg></div>
+      <div class="row"><h4><span class="zh">Arduino UNO R3＋壓克力殼＋USB 線</span><span class="en">Arduino UNO R3 + case + USB cable</span></h4><span class="qty">×1</span></div>
+      <p><span class="zh">備案。若 ESP32 一直讀不到，可換 UNO（5 V 系統，用 SoftwareSerial）。</span><span class="en">Plan B. If the ESP32 never gets a reply, switch to the UNO (5 V, SoftwareSerial).</span></p>
+      <span class="tag t-spare"><span class="zh">備案</span><span class="en">Plan B</span></span>
+    </div>
+
+    <div class="card part" data-k="spare">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="20" y="22" width="120" height="56" rx="4" fill="#f5f5f7" stroke="#d1d1d6" stroke-width="2"/><path d="M24 30 h112" stroke="#ff3b30" stroke-width="2"/><path d="M24 70 h112" stroke="#0a84ff" stroke-width="2"/><g fill="#aeaeb2"><circle cx="34" cy="42" r="1.8"/><circle cx="44" cy="42" r="1.8"/><circle cx="54" cy="42" r="1.8"/><circle cx="64" cy="42" r="1.8"/><circle cx="74" cy="42" r="1.8"/><circle cx="84" cy="42" r="1.8"/><circle cx="94" cy="42" r="1.8"/><circle cx="104" cy="42" r="1.8"/><circle cx="114" cy="42" r="1.8"/><circle cx="124" cy="42" r="1.8"/><circle cx="34" cy="58" r="1.8"/><circle cx="44" cy="58" r="1.8"/><circle cx="54" cy="58" r="1.8"/><circle cx="64" cy="58" r="1.8"/><circle cx="74" cy="58" r="1.8"/><circle cx="84" cy="58" r="1.8"/><circle cx="94" cy="58" r="1.8"/><circle cx="104" cy="58" r="1.8"/><circle cx="114" cy="58" r="1.8"/><circle cx="124" cy="58" r="1.8"/></g></svg></div>
+      <div class="row"><h4><span class="zh">400 孔麵包板</span><span class="en">400-hole breadboard</span></h4><span class="qty">×5</span></div>
+      <p><span class="zh">今天不用：感測器裸線插麵包板接觸不穩，全部走螺絲端子。之後做 LED 示範可用。</span><span class="en">Not today: bare sensor wires are flaky in a breadboard, so everything goes through screw terminals. Useful later for an LED demo.</span></p>
+      <span class="tag t-spare"><span class="zh">之後</span><span class="en">Later</span></span>
+    </div>
+
+    <div class="card part" data-k="spare">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="30" y="26" width="100" height="48" rx="4" fill="#1d1d1f"/><rect x="38" y="34" width="20" height="16" rx="2" fill="#8e8e93"/><rect x="104" y="34" width="18" height="12" rx="2" fill="#c7c7cc"/><circle cx="80" cy="60" r="4" fill="#ff3b30"/><g fill="#d4af37"><rect x="40" y="72" width="3" height="10"/><rect x="50" y="72" width="3" height="10"/><rect x="108" y="72" width="3" height="10"/><rect x="118" y="72" width="3" height="10"/></g><text x="70" y="44" font-size="9" fill="#fff">3.3/5V</text></svg></div>
+      <div class="row"><h4><span class="zh">麵包板電源模組</span><span class="en">Breadboard power module</span></h4><span class="qty">×2</span></div>
+      <p><span class="zh">輸入 7–12 V，輸出 3.3/5 V。今天不需要：ESP32 已由 USB 供電。</span><span class="en">7–12 V in, 3.3/5 V out. Not needed today: the ESP32 is powered over USB.</span></p>
+      <span class="tag t-spare"><span class="zh">備品</span><span class="en">Spare</span></span>
+    </div>
+
+    <div class="card part" data-k="spare">
+      <div class="pic"><svg viewBox="0 0 160 100"><rect x="26" y="18" width="108" height="64" rx="3" fill="#2e7d32"/><g fill="#d4af37">
+        <circle cx="38" cy="30" r="2.4"/><circle cx="50" cy="30" r="2.4"/><circle cx="62" cy="30" r="2.4"/><circle cx="74" cy="30" r="2.4"/><circle cx="86" cy="30" r="2.4"/><circle cx="98" cy="30" r="2.4"/><circle cx="110" cy="30" r="2.4"/><circle cx="122" cy="30" r="2.4"/>
+        <circle cx="38" cy="44" r="2.4"/><circle cx="50" cy="44" r="2.4"/><circle cx="62" cy="44" r="2.4"/><circle cx="74" cy="44" r="2.4"/><circle cx="86" cy="44" r="2.4"/><circle cx="98" cy="44" r="2.4"/><circle cx="110" cy="44" r="2.4"/><circle cx="122" cy="44" r="2.4"/>
+        <circle cx="38" cy="58" r="2.4"/><circle cx="50" cy="58" r="2.4"/><circle cx="62" cy="58" r="2.4"/><circle cx="74" cy="58" r="2.4"/><circle cx="86" cy="58" r="2.4"/><circle cx="98" cy="58" r="2.4"/><circle cx="110" cy="58" r="2.4"/><circle cx="122" cy="58" r="2.4"/>
+        <circle cx="38" cy="72" r="2.4"/><circle cx="50" cy="72" r="2.4"/><circle cx="62" cy="72" r="2.4"/><circle cx="74" cy="72" r="2.4"/><circle cx="86" cy="72" r="2.4"/><circle cx="98" cy="72" r="2.4"/><circle cx="110" cy="72" r="2.4"/><circle cx="122" cy="72" r="2.4"/></g></svg></div>
+      <div class="row"><h4><span class="zh">萬用板（洞洞板）5×7 ×2、7×9 ×1</span><span class="en">Perfboard 5×7 ×2, 7×9 ×1</span></h4><span class="qty">×3</span></div>
+      <p><span class="zh">要焊接，之後做成永久版本時才用。</span><span class="en">Needs soldering. Only for a permanent version later.</span></p>
+      <span class="tag t-later"><span class="zh">之後</span><span class="en">Later</span></span>
+    </div>
+
+    <div class="card part" data-k="spare">
+      <div class="pic"><svg viewBox="0 0 160 100"><g><path d="M40 20 a12 12 0 0 1 24 0 v24 h-24z" fill="#ff3b30" opacity=".85"/><path d="M68 20 a12 12 0 0 1 24 0 v24 h-24z" fill="#34c759" opacity=".85"/><path d="M96 20 a12 12 0 0 1 24 0 v24 h-24z" fill="#ffcc00" opacity=".9"/></g><g stroke="#8e8e93" stroke-width="2"><path d="M46 44 v40"/><path d="M58 44 v34"/><path d="M74 44 v40"/><path d="M86 44 v34"/><path d="M102 44 v40"/><path d="M114 44 v34"/></g></svg></div>
+      <div class="row"><h4><span class="zh">5 mm LED：紅 20、綠 20、黃 10</span><span class="en">5 mm LEDs: red 20, green 20, yellow 10</span></h4><span class="qty">×50</span></div>
+      <p><span class="zh">之後做示範：綠燈 = 模型說「開綠光」、黃燈 = 葉面濕。需要 220 Ω 電阻。</span><span class="en">For a later demo: green = model says "green light on", yellow = leaf wet. Needs 220 Ω resistors.</span></p>
+      <span class="tag t-later"><span class="zh">之後</span><span class="en">Later</span></span>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ SPEC CARD ============ -->
+<section id="spec" class="alt"><div class="wrap">
+  <h2><small>02</small><span class="zh">第一件事：填規格卡</span><span class="en">First: fill the spec card</span></h2>
+  <p class="sub"><span class="zh">感測器到貨後，先拍下標籤、說明書和線色，填下表。這張表會決定接線和程式設定，也是 wiki 的 F2。</span>
+  <span class="en">When the sensor arrives, photograph the label, the manual and the wire colours, then fill this table. It decides the wiring and code settings, and it is wiki figure F2.</span></p>
+  <div class="tbl"><table id="specTable">
+    <tr><th style="width:34%"><span class="zh">項目</span><span class="en">Item</span></th><th style="width:28%"><span class="zh">常見值（不一定對）</span><span class="en">Typical (may differ)</span></th><th><span class="zh">我們的感測器</span><span class="en">Our sensor</span></th></tr>
+    <tr><td><span class="zh">品牌／型號</span><span class="en">Brand / model</span></td><td>—</td><td><input data-s="model"></td></tr>
+    <tr><td><span class="zh">供電電壓範圍</span><span class="en">Supply voltage range</span></td><td>5–30 V / 10–30 V DC</td><td><input data-s="volt"></td></tr>
+    <tr><td><span class="zh">線色：V+ / GND / A / B</span><span class="en">Wire colours: V+ / GND / A / B</span></td><td><span class="zh">紅 / 黑 / 黃或綠 / 藍</span><span class="en">red / black / yellow or green / blue</span></td><td><input data-s="wires"></td></tr>
+    <tr><td><span class="zh">鮑率（baud）</span><span class="en">Baud rate</span></td><td>4800 / 9600</td><td><input data-s="baud"></td></tr>
+    <tr><td><span class="zh">Modbus 位址</span><span class="en">Modbus address</span></td><td>1</td><td><input data-s="addr"></td></tr>
+    <tr><td><span class="zh">暫存器 0x0000 是？</span><span class="en">Register 0x0000 is?</span></td><td><span class="zh">葉面濕度 ×10</span><span class="en">leaf wetness ×10</span></td><td><input data-s="r0"></td></tr>
+    <tr><td><span class="zh">暫存器 0x0001 是？</span><span class="en">Register 0x0001 is?</span></td><td><span class="zh">葉面溫度 ×10（有號）</span><span class="en">leaf temperature ×10 (signed)</span></td><td><input data-s="r1"></td></tr>
+    <tr><td><span class="zh">標示精度（溫度／濕度）</span><span class="en">Stated accuracy (T / wetness)</span></td><td>±0.5 °C / ±5 %</td><td><input data-s="acc"></td></tr>
+    <tr><td><span class="zh">防水等級</span><span class="en">Ingress rating</span></td><td>IP67?</td><td><input data-s="ip"></td></tr>
+  </table></div>
+  <p style="font-size:14px;color:var(--muted)"><span class="zh">輸入的內容只存在這台電腦的瀏覽器裡。最後請截圖或抄進 <code>results/spec_card.md</code>。</span><span class="en">What you type is saved only in this browser. Screenshot it or copy it into <code>results/spec_card.md</code> at the end.</span></p>
+
+  <div class="note n-orange"><b><span class="zh">供電判斷</span><span class="en">Power decision</span></b>
+    <span class="zh">最低電壓 ≤ 5 V → 感測器 V+ 接 ESP32 的 <b>5V（VIN）</b>腳。最低電壓 ≥ 7 V（例如 10–30 V）→ 用 <b>12 V 變壓器</b>，正極接 V+，負極<b>一定要和 ESP32 GND 接在一起</b>。絕對不要把 12 V 接到 ESP32 或 RS485 模組。</span>
+    <span class="en">Minimum ≤ 5 V → sensor V+ goes to the ESP32 <b>5V (VIN)</b> pin. Minimum ≥ 7 V (e.g. 10–30 V) → use a <b>12 V adapter</b>: + to V+, and − <b>must also be joined to ESP32 GND</b>. Never connect 12 V to the ESP32 or the RS485 module.</span></div>
+</div></section>
+
+<!-- ============ ASSEMBLE ============ -->
+<section id="assemble"><div class="wrap">
+  <h2><small>03</small><span class="zh">組裝：不焊接</span><span class="en">Assemble: no soldering</span></h2>
+  <p class="sub"><span class="zh">杜邦線只接「公針 ↔ 公針」；感測器的裸線只鎖進螺絲端子。整個過程 USB 不要插電。</span><span class="en">Jumper wires join male pin to male pin only. Bare sensor wires go into screw terminals only. Keep USB unplugged the whole time.</span></p>
+
+  <div class="diagram">
+  <svg viewBox="0 0 1000 565" font-family="-apple-system,Helvetica,Arial,sans-serif">
+    <!-- ESP32 + expansion -->
+    <rect x="30" y="70" width="300" height="380" rx="16" fill="#1d1d1f"/>
+    <rect x="80" y="110" width="200" height="300" rx="10" fill="#2c2c2e" stroke="#48484a"/>
+    <text x="180" y="250" fill="#fff" font-size="22" font-weight="700" text-anchor="middle">ESP32</text>
+    <text x="180" y="276" fill="#aeaeb2" font-size="13" text-anchor="middle">on expansion board</text>
+    <rect x="160" y="400" width="40" height="22" rx="5" fill="#8e8e93"/><text x="180" y="442" fill="#aeaeb2" font-size="12" text-anchor="middle">USB-C → laptop</text>
+    <!-- pins right side -->
+    <g font-size="14" fill="#fff" font-weight="600">
+      <circle cx="312" cy="120" r="7" fill="#ff3b30"/><text x="296" y="125" text-anchor="end">3V3</text>
+      <circle cx="312" cy="165" r="7" fill="#8e8e93"/><text x="296" y="170" text-anchor="end">GND</text>
+      <circle cx="312" cy="210" r="7" fill="#ffcc00"/><text x="296" y="215" text-anchor="end">GPIO17 TX2</text>
+      <circle cx="312" cy="255" r="7" fill="#34c759"/><text x="296" y="260" text-anchor="end">GPIO16 RX2</text>
+      <circle cx="312" cy="330" r="7" fill="#0a84ff"/><text x="296" y="335" text-anchor="end">GPIO21 SDA</text>
+      <circle cx="312" cy="375" r="7" fill="#af52de"/><text x="296" y="380" text-anchor="end">GPIO22 SCL</text>
+      <circle cx="48" cy="120" r="7" fill="#ff9500"/><text x="64" y="125">5V / VIN</text>
+    </g>
+
+    <!-- RS485 module -->
+    <rect x="450" y="90" width="230" height="200" rx="12" fill="#e0352b"/>
+    <text x="565" y="196" fill="#fff" font-size="18" font-weight="700" text-anchor="middle">TTL → RS485</text>
+    <text x="565" y="218" fill="#ffd7d4" font-size="12" text-anchor="middle">auto direction</text>
+    <g font-size="13" fill="#fff" font-weight="600">
+      <circle cx="462" cy="120" r="7" fill="#ff3b30" stroke="#fff"/><text x="476" y="125">VCC</text>
+      <circle cx="462" cy="165" r="7" fill="#8e8e93" stroke="#fff"/><text x="476" y="170">GND</text>
+      <circle cx="462" cy="210" r="7" fill="#ffcc00" stroke="#fff"/><text x="476" y="215">TXD</text>
+      <circle cx="462" cy="255" r="7" fill="#34c759" stroke="#fff"/><text x="476" y="260">RXD</text>
+    </g>
+    <rect x="628" y="120" width="42" height="120" rx="6" fill="#0a84ff"/>
+    <circle cx="649" cy="150" r="10" fill="#d1d1d6"/><circle cx="649" cy="210" r="10" fill="#d1d1d6"/>
+    <text x="620" y="155" fill="#fff" font-size="13" font-weight="700" text-anchor="end">A+</text>
+    <text x="620" y="215" fill="#fff" font-size="13" font-weight="700" text-anchor="end">B−</text>
+
+    <!-- Leaf sensor -->
+    <path d="M820 300 C815 190 880 110 975 100 C980 210 925 290 820 300Z" fill="#34c759"/>
+    <g stroke="#e8f8ec" stroke-width="3" fill="none"><path d="M840 280 L955 130"/><path d="M860 290 L968 160"/><path d="M832 252 L930 118"/></g>
+    <rect x="790" y="292" width="46" height="26" rx="6" fill="#1d1d1f"/>
+    <text x="900" y="338" font-size="15" font-weight="700" text-anchor="middle" fill="#1d1d1f">Leaf sensor</text>
+    <path d="M813 318 C813 340 800 345 800 352" stroke="#1d1d1f" stroke-width="8" fill="none"/>
+    <rect x="760" y="352" width="110" height="128" rx="10" fill="#f5f5f7" stroke="#c7c7cc"/>
+    <text x="815" y="372" font-size="11" fill="#6e6e73" text-anchor="middle">sensor wires</text>
+    <g font-size="13" fill="#1d1d1f" font-weight="600">
+      <circle cx="772" cy="392" r="6" fill="#ff9500"/><text x="786" y="397">V+</text>
+      <circle cx="772" cy="418" r="6" fill="#636366"/><text x="786" y="423">GND</text>
+      <circle cx="772" cy="444" r="6" fill="#ffcc00"/><text x="786" y="449">A</text>
+      <circle cx="772" cy="470" r="6" fill="#0a84ff"/><text x="786" y="475">B</text>
+    </g>
+    <g stroke="#636366" stroke-width="3"><path d="M836 418 H856"/><path d="M856 408 V428"/><path d="M862 412 V424"/><path d="M868 415 V421"/></g>
+    <text x="875" y="410" font-size="11" fill="#636366">→ ESP32 GND</text><text x="875" y="424" font-size="11" fill="#636366">(common)</text>
+
+    <!-- SHT -->
+    <rect x="450" y="380" width="170" height="130" rx="12" fill="#5e5ce6"/>
+    <text x="535" y="452" fill="#fff" font-size="17" font-weight="700" text-anchor="middle">SHT31 / SHT40</text>
+    <g font-size="12" fill="#fff" font-weight="600">
+      <circle cx="462" cy="398" r="6" fill="#ff3b30" stroke="#fff"/><text x="474" y="402">VIN</text>
+      <circle cx="462" cy="422" r="6" fill="#8e8e93" stroke="#fff"/><text x="474" y="426">GND</text>
+      <circle cx="462" cy="470" r="6" fill="#0a84ff" stroke="#fff"/><text x="474" y="474">SDA</text>
+      <circle cx="462" cy="494" r="6" fill="#af52de" stroke="#fff"/><text x="474" y="498">SCL</text>
+    </g>
+
+    <!-- Power box -->
+    <rect x="770" y="490" width="210" height="56" rx="10" fill="#fff4e0" stroke="#ff9500"/>
+    <text x="875" y="514" font-size="13" font-weight="700" text-anchor="middle" fill="#a35a00">Sensor power</text>
+    <text x="875" y="533" font-size="12" text-anchor="middle" fill="#a35a00">5V pin  or  12 V adapter (spec card)</text>
+
+    <!-- wires ESP32 → RS485 -->
+    <g fill="none" stroke-width="4" stroke-linecap="round">
+      <path d="M319 120 H455" stroke="#ff3b30"/>
+      <path d="M319 165 H455" stroke="#636366"/>
+      <path d="M319 210 H455" stroke="#ffcc00"/>
+      <path d="M319 255 H455" stroke="#34c759"/>
+      <!-- SHT -->
+      <path d="M319 120 C380 120 380 398 456 398" stroke="#ff3b30" stroke-dasharray="1 0"/>
+      <path d="M319 165 C400 165 390 422 456 422" stroke="#636366"/>
+      <path d="M319 330 C390 330 390 470 456 470" stroke="#0a84ff"/>
+      <path d="M319 375 C380 375 380 494 456 494" stroke="#af52de"/>
+      <!-- A/B to sensor -->
+      <path d="M659 150 C730 150 700 444 766 444" stroke="#ffcc00" stroke-width="5"/>
+      <path d="M659 210 C715 210 690 470 766 470" stroke="#0a84ff" stroke-width="5"/>
+      <!-- sensor power -->
+      <path d="M766 392 H735 V515 H770" stroke="#ff9500" stroke-width="4" stroke-dasharray="7 6"/>
+      <path d="M48 127 V535 H735" stroke="#ff9500" stroke-width="3" stroke-dasharray="3 6" opacity=".7"/>
+    </g>
+    <text x="350" y="552" font-size="12" fill="#a35a00"><tspan>5V option (only if spec says ≤5 V is OK)</tspan></text>
+  </svg>
+  <div class="legend">
+    <span><i style="background:#ff3b30"></i>3V3</span><span><i style="background:#636366"></i>GND</span>
+    <span><i style="background:#ffcc00"></i>TX / A</span><span><i style="background:#34c759"></i>RX</span>
+    <span><i style="background:#0a84ff"></i>SDA / B</span><span><i style="background:#af52de"></i>SCL</span>
+    <span><i style="background:#ff9500"></i><span class="zh">感測器電源（虛線＝依規格二選一）</span><span class="en">sensor power (dashed = choose by spec)</span></span>
+  </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:22px">
+    <div class="card">
+      <h3><span class="zh">接線表</span><span class="en">Wiring table</span></h3>
+      <div class="tbl" style="background:#fff;padding:0"><table>
+        <tr><th>ESP32</th><th>→</th><th><span class="zh">接到</span><span class="en">goes to</span></th></tr>
+        <tr><td>3V3</td><td>→</td><td>RS485 VCC, SHT VIN</td></tr>
+        <tr><td>GND</td><td>→</td><td>RS485 GND, SHT GND, <span class="zh">感測器 GND</span><span class="en">sensor GND</span></td></tr>
+        <tr><td>GPIO17 (TX2)</td><td>→</td><td>RS485 TXD</td></tr>
+        <tr><td>GPIO16 (RX2)</td><td>→</td><td>RS485 RXD</td></tr>
+        <tr><td>GPIO21</td><td>→</td><td>SHT SDA</td></tr>
+        <tr><td>GPIO22</td><td>→</td><td>SHT SCL</td></tr>
+        <tr><td>RS485 A+ / B−</td><td>→</td><td><span class="zh">感測器 A / B（螺絲端子）</span><span class="en">sensor A / B (screw terminal)</span></td></tr>
+        <tr><td><span class="zh">感測器 V+</span><span class="en">Sensor V+</span></td><td>→</td><td><span class="zh">5V 腳 或 12 V 正極（看規格卡）</span><span class="en">5V pin or 12 V + (spec card)</span></td></tr>
+      </table></div>
+    </div>
+    <div class="card">
+      <h3><span class="zh">為什麼這樣接</span><span class="en">Why this way</span></h3>
+      <p style="margin:0 0 10px;font-size:15.5px"><span class="zh"><b>RS485 模組用 3.3 V：</b>這樣它回傳給 ESP32 的訊號也是 3.3 V。ESP32 的腳不耐 5 V。</span><span class="en"><b>RS485 module on 3.3 V:</b> its signal back to the ESP32 is then 3.3 V too. ESP32 pins are not 5 V tolerant.</span></p>
+      <p style="margin:0 0 10px;font-size:15.5px"><span class="zh"><b>共地：</b>RS485 的 A/B 是差動訊號，但所有裝置的 GND 還是要接在一起，否則讀數會亂跳或完全沒反應。</span><span class="en"><b>Common ground:</b> A/B is differential, but every device's GND must still be joined, otherwise readings jump or never arrive.</span></p>
+      <p style="margin:0;font-size:15.5px"><span class="zh"><b>TX→TXD？</b>自動流向模組的標示方式各家不同。讀不到時，先對調 TX/RX，再對調 A/B。對調不會燒壞東西。</span><span class="en"><b>TX→TXD?</b> Auto-direction modules label pins differently. If there is no reply, swap TX/RX first, then A/B. Swapping is harmless.</span></p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:34px"><span class="zh">組裝步驟</span><span class="en">Steps</span></h3>
+  <ol class="steps" data-ck="asm">
+    <li><label><input type="checkbox"><span><span class="zh">把 ESP32 插進擴充板，注意方向（USB 口朝擴充板的 USB 缺口）。擴充板若有電壓跳帽，設 3.3 V。</span><span class="en">Seat the ESP32 on the expansion board, USB end toward the board's USB cutout. If the board has a voltage jumper, set it to 3.3 V.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">用 4 條母對母杜邦線接 ESP32 → RS485 模組：3V3→VCC、GND→GND、GPIO17→TXD、GPIO16→RXD。建議固定用紅＝電、黑＝地。</span><span class="en">Four F–F jumpers from ESP32 to RS485 module: 3V3→VCC, GND→GND, GPIO17→TXD, GPIO16→RXD. Stick to red = power, black = ground.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">再 4 條接 SHT：3V3→VIN、GND→GND、GPIO21→SDA、GPIO22→SCL。擴充板每個 3V3/GND 腳通常有多支，任選一支即可。</span><span class="en">Four more to the SHT: 3V3→VIN, GND→GND, GPIO21→SDA, GPIO22→SCL. The expansion board usually has several 3V3/GND pins; any one works.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">感測器的 A、B 裸線鎖進 RS485 模組的 A+、B− 螺絲端子。拉一下，確認不會鬆脫。</span><span class="en">Screw the sensor's bare A and B wires into the module's A+ and B− terminals. Tug to make sure they hold.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">感測器 GND 接 ESP32 GND。擴充板若有 GND 螺絲端子就直接鎖；沒有的話，用一條杜邦線剪掉一頭，和裸線絞在一起後包膠帶。</span><span class="en">Sensor GND to ESP32 GND. Use a GND screw terminal if the board has one. If not, cut one end off a jumper, twist it onto the bare wire and tape it.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">感測器 V+：照規格卡接 5V 腳，或接 12 V 變壓器正極。若用 12 V，變壓器負極也要接 ESP32 GND。</span><span class="en">Sensor V+: to the 5V pin or to the 12 V adapter's + per the spec card. With 12 V, the adapter's − also goes to ESP32 GND.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">兩人互相檢查：照接線表逐條唸一次。特別確認 12 V 沒有碰到任何 3.3 V 的東西。</span><span class="en">Two-person check: read every line of the wiring table aloud. In particular, confirm 12 V touches nothing on the 3.3 V side.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">用膠帶把線束固定在桌上，避免拉扯。拍一張照片，這是 wiki F1。</span><span class="en">Tape the harness to the desk so nothing gets pulled. Take a photo: this is wiki F1.</span></span></label></li>
+  </ol>
+  <div class="note n-red"><b><span class="zh">安全</span><span class="en">Safety</span></b>
+    <span class="zh">水和電子分開：ESP32、RS485 模組、變壓器永遠放在箱子外面的乾燥處，只有感測器和 SHT 進濕度箱。改接線前先拔 USB。</span>
+    <span class="en">Keep water and electronics apart: the ESP32, RS485 module and adapter always sit outside the box, somewhere dry. Only the sensor and the SHT go into the humidity box. Unplug USB before rewiring.</span></div>
+</div></section>
+
+<!-- ============ FLASH ============ -->
+<section id="flash" class="alt"><div class="wrap">
+  <h2><small>04</small><span class="zh">燒錄與第一次讀值</span><span class="en">Flash and first reading</span></h2>
+  <p class="sub"><span class="zh">程式不需要任何函式庫，開機會自動試 4800 → 9600 → 2400 → 19200 鮑率。</span><span class="en">The firmware needs no libraries. At boot it tries 4800, then 9600, 2400 and 19200 baud by itself.</span></p>
+  <ol class="steps" data-ck="flash">
+    <li><label><input type="checkbox"><span><span class="zh">下載本 repo（綠色 Code → Download ZIP）並解壓縮。</span><span class="en">Download this repo (green Code → Download ZIP) and unzip it.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">Arduino IDE → 設定 → 額外的開發板管理員網址，貼上：</span><span class="en">Arduino IDE → Settings → Additional boards manager URLs, paste:</span><br><code>https://espressif.github.io/arduino-esp32/package_esp32_index.json</code><br><span class="zh">再到「開發板管理員」搜尋 <b>esp32</b>（Espressif）並安裝。</span><span class="en">Then in Boards Manager search <b>esp32</b> (by Espressif) and install it.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">開啟 <code>firmware/leafsensor/leafsensor.ino</code>，把最上面的 <code>SHT_MODEL</code> 改成 31 或 40。</span><span class="en">Open <code>firmware/leafsensor/leafsensor.ino</code> and set <code>SHT_MODEL</code> at the top to 31 or 40.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">開發板選 <b>ESP32 Dev Module</b>，連接埠選 <code>/dev/cu.usbserial-…</code> 或 <code>cu.wchusbserial…</code>（Windows：COMx），按上傳。卡在 "Connecting…" 時，按住板子上的 <b>BOOT</b> 鍵 2 秒。</span><span class="en">Board <b>ESP32 Dev Module</b>; port <code>/dev/cu.usbserial-…</code> or <code>cu.wchusbserial…</code> (Windows: COMx). Upload. If it hangs on "Connecting…", hold the <b>BOOT</b> button for 2 s.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh">打開序列埠監控視窗，設 115200。應該看到：</span><span class="en">Open Serial Monitor at 115200. You should see:</span></span></label>
+<pre><code># leafsensor bench logger
+# SHT OK
+# FOUND sensor: baud=4800 addr=1
+ms,ok,r0,r1,sht_t,sht_rh
+4012,1,0.0,26.3,26.12,58.40
+6012,1,0.0,26.3,26.11,58.38</code></pre></li>
+    <li><label><input type="checkbox"><span><span class="zh"><b>判斷哪一欄是濕度、哪一欄是溫度：</b>對感測器葉面噴一下水，跳到幾十的那欄是濕度。用手握住感測器 30 秒，慢慢升溫的那欄是溫度。結果寫進 <code>tools/config.json</code>（<code>wet_register</code> / <code>temp_register</code>）和規格卡。</span><span class="en"><b>Which column is which:</b> spray the leaf once; the column that jumps to tens is wetness. Hold the sensor in your hand for 30 s; the column that slowly rises is temperature. Write the answer into <code>tools/config.json</code> (<code>wet_register</code> / <code>temp_register</code>) and the spec card.</span></span></label></li>
+    <li><label><input type="checkbox"><span><span class="zh"><b>關閉序列埠監控視窗</b>（一次只能有一個程式佔用連接埠），再裝 Python 套件：</span><span class="en"><b>Close Serial Monitor</b> (only one program can own the port), then install the Python packages:</span></span></label>
+<pre><code>cd leaf-sensor-bench
+python3 -m pip install pyserial pandas matplotlib numpy
+python3 tools/logger.py --test T0</code></pre>
+<span class="zh">記錄中隨時可以輸入標記再按 Enter（例如 <span class="mk">dose 2</span>），會寫進下一列。Ctrl+C 停止，檔案存到 <code>data/</code>。</span><span class="en">While logging, type a marker and press Enter (e.g. <span class="mk">dose 2</span>); it is written into the next row. Ctrl+C stops, and the file lands in <code>data/</code>.</span></li>
+  </ol>
+</div></section>
+
+<!-- ============ TESTS ============ -->
+<section id="tests"><div class="wrap">
+  <h2><small>05</small><span class="zh">六項測試</span><span class="en">Six tests</span></h2>
+  <p class="sub"><span class="zh">依序做。每項做完立刻跑分析，確認圖對了再往下。右邊的圖是<b>模擬示意</b>，讓你知道大概長怎樣，不是真實數據。</span><span class="en">Do them in order, and run the analysis right after each one so you know the figure is right before moving on. Figures on the right are <b>simulated examples</b> of the expected shape, not real data.</span></p>
+
+  <div class="timeline">
+    <div style="flex:1;background:#8e8e93">T0 · 30m</div>
+    <div style="flex:2;background:#0a84ff">C1 · 60m</div>
+    <div style="flex:1.5;background:#34c759">C2 · 45m</div>
+    <div style="flex:2;background:#30b0c7">C3 · 60m</div>
+    <div style="flex:2;background:#ff9500">C4 · 75m</div>
+    <div style="flex:1.2;background:#5e5ce6">T5 · <span class="zh">一晚</span><span class="en">overnight</span></div>
+  </div>
+
+  <!-- T0 -->
+  <div class="card test">
+    <div class="head"><span class="badge" style="background:#8e8e93">T0</span><h3><span class="zh">並排基線：讀數穩不穩？</span><span class="en">Side-by-side baseline: is it stable?</span></h3></div>
+    <div class="meta"><span>⏱ 30 min</span><span><span class="zh">回答問題 ①</span><span class="en">Answers ①</span></span><span>→ F3</span></div>
+    <div class="cols"><div>
+      <ol class="steps" data-ck="t0">
+        <li><label><input type="checkbox"><span><span class="zh">感測器葉面朝上、水平放，SHT 放旁邊 5 cm 內，避開窗戶、冷氣出風口和人手。</span><span class="en">Sensor leaf facing up and horizontal, SHT within 5 cm. Keep away from windows, AC vents and hands.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>python3 tools/logger.py --test T0</code><span class="zh">，不要碰，30 分鐘後按 Ctrl+C。</span><span class="en">. Don't touch anything; Ctrl+C after 30 min.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>python3 tools/analyze.py T0 data/T0_*.csv</code></span></label></li>
+      </ol>
+      <p class="pass"><b><span class="zh">目標：</span><span class="en">Target:</span></b> <span class="zh">讀取成功率 ≥ 99%；溫度偏差在標示精度內；乾燥時濕度讀數雜訊（SD）小。</span><span class="en">read success ≥ 99 %; temperature bias within stated accuracy; small wetness noise (SD) when dry.</span></p>
+    </div>
+    <figure><img src="docs/example/T0_side_by_side.png" alt="T0 example"><figcaption><span class="sim">SIM</span><span class="zh">溫度並排、乾燥時讀數、Bland–Altman</span><span class="en">Temperature side by side, dry reading, Bland–Altman</span></figcaption></figure></div>
+  </div>
+
+  <!-- C1 -->
+  <div class="card test">
+    <div class="head"><span class="badge" style="background:#0a84ff">C1</span><h3><span class="zh">濕度箱：潮濕空氣會被誤判成濕嗎？</span><span class="en">Humidity box: does humid air read as wet?</span></h3></div>
+    <div class="meta"><span>⏱ 60 min</span><span><span class="zh">回答問題 ②</span><span class="en">Answers ②</span></span><span>→ F4</span></div>
+    <div class="cols"><div>
+      <svg viewBox="0 -8 420 182" style="width:100%;margin-bottom:8px" font-family="-apple-system,Helvetica,Arial,sans-serif">
+        <rect x="20" y="40" width="300" height="115" rx="10" fill="#f2f2f7" stroke="#aeaeb2" stroke-width="2"/>
+        <rect x="14" y="30" width="312" height="14" rx="5" fill="#d1d1d6"/>
+        <rect x="350" y="80" width="56" height="75" rx="16" fill="#e5e5ea"/>
+        <path d="M378 80 C378 40 330 20 300 32" stroke="#8ec5ff" stroke-width="10" fill="none" opacity=".7"/>
+        <rect x="190" y="70" width="8" height="70" fill="#8e8e93"/>
+        <text x="160" y="66" font-size="11" fill="#6e6e73">baffle</text>
+        <path d="M60 128 C60 100 90 88 120 88 C120 116 98 128 60 128Z" fill="#34c759"/>
+        <rect x="132" y="110" width="26" height="22" rx="4" fill="#5e5ce6"/>
+        <text x="58" y="148" font-size="11" fill="#1d1d1f">leaf sensor + SHT</text>
+        <g fill="#8ec5ff" opacity=".55"><circle cx="240" cy="100" r="14"/><circle cx="262" cy="92" r="12"/><circle cx="282" cy="104" r="13"/><circle cx="256" cy="112" r="11"/></g>
+        <text x="340" y="170" font-size="11" fill="#6e6e73">humidifier</text>
+        <path d="M120 30 C120 10 40 10 30 0" stroke="#1d1d1f" stroke-width="2" fill="none"/>
+        <text x="40" y="14" font-size="10" fill="#6e6e73">cables → ESP32 (outside)</text>
+      </svg>
+      <ol class="steps" data-ck="c1">
+        <li><label><input type="checkbox"><span><span class="zh">感測器和 SHT 放箱內一端，葉面水平朝上。另一端開孔讓加濕器的霧進來，中間立一片紙板擋住，<b>霧不能直接噴到葉面</b>。</span><span class="en">Sensor and SHT at one end of the box, leaf horizontal and facing up. Mist enters through a hole at the other end. Stand a card in between so <b>mist never hits the leaf directly</b>.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>--test C1</code><span class="zh"> 開始記錄 5 分鐘（室內濕度基線），然後打開加濕器（中檔）。</span><span class="en"> — log 5 min of room baseline, then switch the humidifier on (medium).</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">每 5 分鐘透過箱蓋看一次葉面。第一次看到霧氣或小水珠時輸入 <span class="mk">fog</span>。</span><span class="en">Look at the leaf through the lid every 5 min. Type <span class="mk">fog</span> when you first see haze or droplets.</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">RH 到 ≥ 97% 或出現 fog 後再記 10 分鐘就停止。打開箱蓋讓所有東西晾乾 30 分鐘（SHT 在 100% RH 會暫時失準）。</span><span class="en">Stop 10 min after RH ≥ 97 % or fog. Open the box and let everything dry for 30 min (the SHT reads off for a while after 100 % RH).</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>python3 tools/analyze.py C1 data/C1_*.csv</code></span></label></li>
+      </ol>
+      <p class="pass"><b><span class="zh">要看的：</span><span class="en">Look for:</span></b> <span class="zh">fog 之前，讀數要一直接近乾燥基線，就算 RH 到 90–95% 也一樣。如果 RH 90% 就讓讀數爬高，代表這顆會把「潮濕空氣」誤當成「濕葉」，門檻要設高一點。</span><span class="en">before fog the reading should stay near the dry baseline even at RH 90–95 %. If it climbs at RH 90 %, the sensor confuses humid air with a wet leaf, and the threshold must sit higher.</span></p>
+      <details><summary><span class="zh">加分：食鹽一點檢查（NaCl 75%）</span><span class="en">Bonus: one-point salt check (NaCl 75 %)</span></summary>
+        <span class="zh">小保鮮盒放一匙食鹽加幾滴水調成濕沙狀，SHT 放進去密封 2 小時，25 °C 時應讀 75.3%。這同時檢查 SHT 準不準。</span><span class="en">Put a spoonful of table salt with a few drops of water (wet-sand texture) in a small sealed box with the SHT for 2 h. At 25 °C it should read 75.3 %. This checks the SHT itself.</span></details>
+    </div>
+    <figure><img src="docs/example/C1_humidity_cross_sensitivity.png" alt="C1 example"><figcaption><span class="sim">SIM</span><span class="zh">左：RH 上升與讀數；右：讀數對參考 RH</span><span class="en">Left: RH ramp and reading. Right: reading vs reference RH</span></figcaption></figure></div>
+  </div>
+
+  <!-- C2 -->
+  <div class="card test">
+    <div class="head"><span class="badge" style="background:#34c759">C2</span><h3><span class="zh">加水劑量：多少水給多少讀數？</span><span class="en">Water dose: how much reading per water?</span></h3></div>
+    <div class="meta"><span>⏱ 45 min</span><span><span class="zh">回答問題 ③</span><span class="en">Answers ③</span></span><span>→ F5</span></div>
+    <div class="cols"><div>
+      <ol class="steps" data-ck="c2">
+        <li><label><input type="checkbox"><span><span class="zh">噴霧瓶固定距離 20 cm、垂直對準葉面。先空噴幾下讓噴量穩定。</span><span class="en">Spray bottle at a fixed 20 cm, aimed straight down at the leaf. Waste a few sprays first so each spray is consistent.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>--test C2</code><span class="zh">。每個劑量都<b>從乾的開始</b>：紙巾輕壓吸乾 → 等讀數回到基線 → 噴 N 下，同時輸入 <span class="mk">dose N</span> → 等 60 秒。</span><span class="en">. Every dose <b>starts from dry</b>: blot with tissue → wait for the baseline → spray N times while typing <span class="mk">dose N</span> → wait 60 s.</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">順序：<span class="mk">dose 0</span> <span class="mk">dose 1</span> <span class="mk">dose 2</span> <span class="mk">dose 4</span> <span class="mk">dose 8</span>，整組重複 3 次（共 15 次）。每次吸乾後輸入 <span class="mk">wipe</span>。</span><span class="en">Order: <span class="mk">dose 0</span> <span class="mk">dose 1</span> <span class="mk">dose 2</span> <span class="mk">dose 4</span> <span class="mk">dose 8</span>, whole set ×3 (15 trials). Type <span class="mk">wipe</span> after each blot.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>python3 tools/analyze.py C2 data/C2_*.csv</code><span class="zh">（用 pipette 的話，把 config 的 <code>dose_unit</code> 改成 µL）</span><span class="en"> (with a pipette, set <code>dose_unit</code> to µL in config)</span></span></label></li>
+      </ol>
+      <p class="pass"><b><span class="zh">要看的：</span><span class="en">Look for:</span></b> <span class="zh">讀數隨水量單調上升，並在某個劑量飽和；三次重複的 SD 小。</span><span class="en">the reading rises monotonically with water and saturates at some dose; small SD across the 3 repeats.</span></p>
+    </div>
+    <figure><img src="docs/example/C2_dose_response.png" alt="C2 example"><figcaption><span class="sim">SIM</span><span class="zh">劑量反應曲線（平均 ± SD）</span><span class="en">Dose–response (mean ± SD)</span></figcaption></figure></div>
+  </div>
+
+  <!-- C3 -->
+  <div class="card test">
+    <div class="head"><span class="badge" style="background:#30b0c7">C3</span><h3><span class="zh">乾燥曲線：定出乾／濕門檻</span><span class="en">Dry-down: set the wet/dry threshold</span></h3></div>
+    <div class="meta"><span>⏱ 60 min</span><span><span class="zh">回答問題 ③</span><span class="en">Answers ③</span></span><span>→ F6</span></div>
+    <div class="cols"><div>
+      <ol class="steps" data-ck="c3">
+        <li><label><input type="checkbox"><span><span class="zh">小電扇開最弱檔，距離 50 cm 對著感測器；位置用膠帶標記，3 次都一樣。</span><span class="en">Small fan on its lowest setting, 50 cm from the sensor. Tape the positions so all 3 runs match.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>--test C3</code><span class="zh">。噴 8 下讓葉面全濕，同時輸入 <span class="mk">wet</span>。手機每分鐘拍一張葉面特寫。</span><span class="en">. Spray 8 times to soak the leaf and type <span class="mk">wet</span>. Photograph the leaf close-up every minute.</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">看起來<b>完全沒有水珠和水膜</b>時，輸入 <span class="mk">dry</span>。最好由同一個人判斷，再多記 5 分鐘。</span><span class="en">When there is <b>no visible droplet or film left</b>, type <span class="mk">dry</span>. Have the same person judge every time. Log 5 more minutes.</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">重複 3 次（同一個檔案，每次都從 <span class="mk">wet</span> 開始）。</span><span class="en">Repeat 3 times in the same file, each run starting with <span class="mk">wet</span>.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>python3 tools/analyze.py C3 data/C3_*.csv</code><span class="zh"> → 把印出的門檻值填進 <code>tools/config.json</code> 的 <code>wet_threshold</code>。</span><span class="en"> → copy the printed threshold into <code>wet_threshold</code> in <code>tools/config.json</code>.</span></span></label></li>
+      </ol>
+      <p class="pass"><b><span class="zh">產出：</span><span class="en">Outputs:</span></b> <span class="zh">門檻 ± SD（肉眼判斷變乾那一刻的讀數）、肉眼變乾的時間、乾到一半的時間。這個門檻就是之後所有「葉面濕潤時數（LWD）」的定義。</span><span class="en">threshold ± SD (the reading at the moment it looks dry), time to look dry, and time to half-dry. This threshold defines every later "leaf wetness duration (LWD)".</span></p>
+    </div>
+    <figure><img src="docs/example/C3_drydown_threshold.png" alt="C3 example"><figcaption><span class="sim">SIM</span><span class="zh">三次乾燥曲線；黑點＝肉眼判斷變乾</span><span class="en">Three dry-downs; black dots = looks dry by eye</span></figcaption></figure></div>
+  </div>
+
+  <!-- C4 -->
+  <div class="card test">
+    <div class="head"><span class="badge" style="background:#ff9500">C4</span><h3><span class="zh">冷葉結露：室內版的「露水」</span><span class="en">Cold-leaf dew: indoor dew</span></h3></div>
+    <div class="meta"><span>⏱ 75 min</span><span><span class="zh">回答問題 ④</span><span class="en">Answers ④</span></span><span>→ F7</span></div>
+    <div class="cols"><div>
+      <p style="margin-top:0;font-size:15.5px"><span class="zh">原理：田間的露水，是夜間葉面溫度降到空氣露點以下時形成的。我們把感測器冰到 4 °C 再拿出來，它會比室內空氣的露點還冷，表面就會結露；回溫超過露點後再變乾。這個測試不需要任何標準濕潤儀，只要 SHT 算出露點就能驗證。</span><span class="en">Principle: field dew forms when a leaf cools below the air's dew point at night. We chill the sensor to 4 °C and take it out. It is colder than the room's dew point, so dew forms; once it warms past the dew point, it dries. The SHT gives the dew point, so no reference wetness instrument is needed.</span></p>
+      <ol class="steps" data-ck="c4">
+        <li><label><input type="checkbox"><span><span class="zh">把<b>只有感測器</b>放進冰箱 30 分鐘（線從門縫拉出，ESP32 留在外面繼續記錄也可以）。SHT 留在室溫。</span><span class="en">Put <b>only the sensor</b> in the fridge for 30 min (the cable can run through the door seal with the ESP32 outside, still logging). The SHT stays at room temperature.</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">同時用加濕器把濕度箱拉到 RH 75–85%（露點約 20 °C）。</span><span class="en">Meanwhile bring the humidity box to RH 75–85 % with the humidifier (dew point ≈ 20 °C).</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>--test C4</code><span class="zh">。把感測器拿出來，水平放進濕度箱的 SHT 旁邊，同時輸入 <span class="mk">out</span>。記錄 30 分鐘，不要碰。</span><span class="en">. Take the sensor out, lay it flat next to the SHT in the box and type <span class="mk">out</span>. Log 30 min without touching.</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">重複 2 次。</span><span class="en">Repeat twice.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>python3 tools/analyze.py C4 data/C4_*.csv</code><span class="zh">（先確認 config 已經填好 C3 的門檻）</span><span class="en"> (make sure the C3 threshold is already in config)</span></span></label></li>
+      </ol>
+      <p class="pass"><b><span class="zh">要看的：</span><span class="en">Look for:</span></b> <span class="zh">「葉溫 &lt; 露點」的時段和「讀數 &gt; 門檻」的時段重疊；回溫越過露點後幾分鐘內變乾。報告一致率（%）和變乾延遲（分鐘）。</span><span class="en">the "leaf T &lt; dew point" window overlaps the "reading &gt; threshold" window, and it dries within minutes of crossing the dew point. Report agreement (%) and dry lag (min).</span></p>
+      <details><summary><span class="zh">算露點的例子</span><span class="en">Dew-point example</span></summary><span class="zh">25 °C、RH 70% → 露點 19.1 °C；25 °C、RH 85% → 22.2 °C。程式用 Magnus 公式自動算。</span><span class="en">25 °C, RH 70 % → dew point 19.1 °C; 25 °C, RH 85 % → 22.2 °C. The script computes it with the Magnus formula.</span></details>
+    </div>
+    <figure><img src="docs/example/C4_dew_test.png" alt="C4 example"><figcaption><span class="sim">SIM</span><span class="zh">上：葉溫與露點（橘色＝比露點冷）；下：濕潤讀數</span><span class="en">Top: leaf T vs dew point (orange = colder than dew point). Bottom: wetness reading</span></figcaption></figure></div>
+  </div>
+
+  <!-- T5 -->
+  <div class="card test">
+    <div class="head"><span class="badge" style="background:#5e5ce6">T5</span><h3><span class="zh">過夜穩定度</span><span class="en">Overnight stability</span></h3></div>
+    <div class="meta"><span>⏱ 12 h</span><span><span class="zh">回答問題 ①</span><span class="en">Answers ①</span></span><span>→ F8</span></div>
+    <div class="cols"><div>
+      <ol class="steps" data-ck="t5">
+        <li><label><input type="checkbox"><span><span class="zh">把程式的 <code>SAMPLE_MS</code> 改成 <code>10000</code> 並重新上傳。</span><span class="en">Set <code>SAMPLE_MS</code> to <code>10000</code> in the firmware and upload again.</span></span></label></li>
+        <li><label><input type="checkbox"><span><span class="zh">感測器和 SHT 回到 T0 的位置；筆電接電源並關閉睡眠。</span><span class="en">Sensor and SHT back in the T0 spot. Laptop on mains power with sleep disabled.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>--test T5</code><span class="zh">，隔天早上 Ctrl+C。</span><span class="en">, Ctrl+C the next morning.</span></span></label></li>
+        <li><label><input type="checkbox"><span><code>python3 tools/analyze.py T5 data/T5_*.csv</code></span></label></li>
+      </ol>
+      <p class="pass"><b><span class="zh">目標：</span><span class="en">Target:</span></b> <span class="zh">上線率 ≥ 99%；乾燥讀數沒有明顯漂移；溫度偏差和 T0 一致。</span><span class="en">uptime ≥ 99 %; no visible drift in the dry reading; temperature bias matches T0.</span></p>
+    </div>
+    <figure><img src="docs/example/T5_overnight.png" alt="T5 example"><figcaption><span class="sim">SIM</span><span class="zh">一晚的溫度與濕潤讀數</span><span class="en">One night of temperature and wetness</span></figcaption></figure></div>
+  </div>
+</div></section>
+
+<!-- ============ WIKI ============ -->
+<section id="wiki" class="alt"><div class="wrap">
+  <h2><small>06</small><span class="zh">要放上 wiki 的數據</span><span class="en">What goes on the wiki</span></h2>
+  <p class="sub"><span class="zh">8 張圖＋1 張總表，放在 Hardware／Measurement 頁，照 Design → Build → Test → Learn 的工程循環排。所有數字自動彙整在 <code>results/summary.json</code>。</span><span class="en">Eight figures and one summary table on the Hardware / Measurement page, ordered Design → Build → Test → Learn. Every number is collected automatically in <code>results/summary.json</code>.</span></p>
+
+  <div class="grid g4 fig-list">
+    <div class="card"><div class="fnum">F1 · Build</div><h4><span class="zh">實體照片＋接線圖</span><span class="en">Photo + wiring diagram</span></h4><p><span class="zh">組裝第 8 步的照片，配上本頁的接線圖。</span><span class="en">Photo from assembly step 8 next to this page's diagram.</span></p></div>
+    <div class="card"><div class="fnum">F2 · Design</div><h4><span class="zh">規格卡</span><span class="en">Spec card</span></h4><p><span class="zh">廠商標示 vs 我們實測。</span><span class="en">Manufacturer claims vs what we measured.</span></p></div>
+    <div class="card"><div class="fnum">F3 · T0</div><h4>Bland–Altman</h4><p><span class="zh">溫度偏差與 95% 一致性界限。</span><span class="en">Temperature bias and 95 % limits of agreement.</span></p></div>
+    <div class="card"><div class="fnum">F4 · C1</div><h4><span class="zh">濕空氣交叉敏感</span><span class="en">Humid-air cross-sensitivity</span></h4><p><span class="zh">葉面乾時，讀數對 RH 的關係。</span><span class="en">Reading vs RH while the leaf is dry.</span></p></div>
+    <div class="card"><div class="fnum">F5 · C2</div><h4><span class="zh">劑量反應</span><span class="en">Dose–response</span></h4><p><span class="zh">水量 → 讀數，n = 3。</span><span class="en">Water applied → reading, n = 3.</span></p></div>
+    <div class="card"><div class="fnum">F6 · C3</div><h4><span class="zh">乾燥曲線與門檻</span><span class="en">Dry-down + threshold</span></h4><p><span class="zh">LWD 的操作型定義來源。</span><span class="en">Where our operational definition of LWD comes from.</span></p></div>
+    <div class="card"><div class="fnum">F7 · C4</div><h4><span class="zh">露點物理驗證</span><span class="en">Dew-physics validation</span></h4><p><span class="zh">葉溫 &lt; 露點 ⇔ 濕。最有說服力的一張。</span><span class="en">Leaf T &lt; dew point ⇔ wet. The most convincing figure.</span></p></div>
+    <div class="card"><div class="fnum">F8 · T5</div><h4><span class="zh">過夜穩定度</span><span class="en">Overnight stability</span></h4><p><span class="zh">上線率、漂移。</span><span class="en">Uptime and drift.</span></p></div>
+  </div>
+
+  <h3 style="margin-top:36px"><span class="zh">總表 T1（從 summary.json 填）</span><span class="en">Summary table T1 (fill from summary.json)</span></h3>
+  <div class="tbl"><table>
+    <tr><th><span class="zh">指標</span><span class="en">Metric</span></th><th><span class="zh">來源</span><span class="en">From</span></th><th><span class="zh">目標</span><span class="en">Target</span></th><th><span class="zh">結果</span><span class="en">Result</span></th></tr>
+    <tr><td><span class="zh">讀取成功率／上線率</span><span class="en">Read success / uptime</span></td><td>T0, T5</td><td>≥ 99 %</td><td></td></tr>
+    <tr><td><span class="zh">溫度偏差 ± LoA</span><span class="en">Temperature bias ± LoA</span></td><td>T0</td><td><span class="zh">在標示精度內</span><span class="en">within stated accuracy</span></td><td></td></tr>
+    <tr><td><span class="zh">乾燥讀數雜訊 SD</span><span class="en">Dry-reading noise SD</span></td><td>T0</td><td>(threshold − dry) ≥ 5 × SD</td><td></td></tr>
+    <tr><td><span class="zh">RH ≥ 90% 時乾葉最大讀數</span><span class="en">Max dry-leaf reading at RH ≥ 90 %</span></td><td>C1</td><td>&lt; threshold</td><td></td></tr>
+    <tr><td><span class="zh">飽和劑量；重複 SD</span><span class="en">Saturating dose; repeat SD</span></td><td>C2</td><td><span class="zh">單調、SD 小</span><span class="en">monotonic, small SD</span></td><td></td></tr>
+    <tr><td><span class="zh">乾／濕門檻 ± SD</span><span class="en">Wet/dry threshold ± SD</span></td><td>C3</td><td>—</td><td></td></tr>
+    <tr><td><span class="zh">肉眼變乾時間</span><span class="en">Time to look dry</span></td><td>C3</td><td>—</td><td></td></tr>
+    <tr><td><span class="zh">露點一致率；變乾延遲</span><span class="en">Dew agreement; dry lag</span></td><td>C4</td><td>≥ 90 %; <span class="zh">數分鐘內</span><span class="en">a few min</span></td><td></td></tr>
+    <tr><td><span class="zh">讀數漂移</span><span class="en">Reading drift</span></td><td>T5</td><td><span class="zh">≈ 0 /h</span><span class="en">≈ 0 /h</span></td><td></td></tr>
+  </table></div>
+
+  <div class="note n-blue"><b><span class="zh">wiki 誠實聲明（照抄）</span><span class="en">Honest scope statement (copy as-is)</span></b>
+    <span class="zh">本感測器只完成實驗台校正（室內濕度箱、加水劑量、乾燥曲線、冷葉結露），尚未在稻田中驗證葉面濕潤時數，也尚未驗證其對稻熱病的預測能力。</span>
+    <span class="en">This sensor has been characterised on the bench only (humidity chamber, water dose, dry-down, cold-leaf dew). Leaf-wetness duration has not yet been validated in a paddy field, and neither has its value for predicting rice blast.</span></div>
+
+  <h3 style="margin-top:30px"><span class="zh">交件</span><span class="en">Hand-in</span></h3>
+  <p style="margin:0"><span class="zh">把整個 <code>data/</code>、<code>figures/</code>、<code>results/</code> 資料夾，加上 C3 的手機照片，壓縮後交給老師。有 repo 權限的話直接 commit。原始 CSV 不要刪、不要手改。</span><span class="en">Zip the whole <code>data/</code>, <code>figures/</code> and <code>results/</code> folders plus the C3 phone photos and hand them to the instructor, or commit them if you have repo access. Never delete or hand-edit raw CSVs.</span></p>
+</div></section>
+
+<!-- ============ MODEL LINK ============ -->
+<section id="model"><div class="wrap">
+  <h2><small>07</small><span class="zh">它怎麼接到 stress index</span><span class="en">How it feeds the stress index</span></h2>
+  <p class="sub"><span class="zh">縣級產量模型裡，濕度類變數的貢獻幾乎為零（暖夜、高濕日都沒通過置換檢定）。所以葉面濕潤<b>不會</b>變成產量回歸的新欄位，而是在即時決策端提供三種新資訊。</span><span class="en">In the county yield model, humidity-type variables contribute almost nothing (warm nights and humid days failed permutation tests). So leaf wetness does <b>not</b> become a new column in the yield regression. It adds three new pieces of information on the real-time decision side.</span></p>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 300" font-family="-apple-system,Helvetica,Arial,sans-serif">
+    <rect x="20" y="105" width="190" height="90" rx="16" fill="#34c759"/>
+    <text x="115" y="145" fill="#fff" font-size="17" font-weight="700" text-anchor="middle">Leaf sensor</text>
+    <text x="115" y="168" fill="#e8f8ec" font-size="13" text-anchor="middle">wet / dry · leaf T</text>
+    <rect x="20" y="225" width="190" height="56" rx="14" fill="#f5f5f7"/>
+    <text x="115" y="250" fill="#1d1d1f" font-size="13" font-weight="600" text-anchor="middle">CWA forecast</text>
+    <text x="115" y="268" fill="#6e6e73" font-size="12" text-anchor="middle">T · RH · cloud · wind</text>
+    <g font-size="13">
+      <rect x="320" y="20" width="300" height="72" rx="14" fill="#e8f1fd"/>
+      <text x="336" y="48" font-weight="700" fill="#0b57b8">R1 · Input correction</text>
+      <text x="336" y="70" fill="#1d1d1f">Field T replaces ERA5 (heat hours ≥ 35 °C)</text>
+      <rect x="320" y="114" width="300" height="72" rx="14" fill="#fff4e0"/>
+      <text x="336" y="142" font-weight="700" fill="#a35a00">R2 · Biotic sub-stress S_blast</text>
+      <text x="336" y="164" fill="#1d1d1f">wet ≥ ~10 h at 20–25 °C (BLASTAM-type)</text>
+      <rect x="320" y="208" width="300" height="72" rx="14" fill="#e8f8ec"/>
+      <text x="336" y="236" font-weight="700" fill="#1a7f37">R3 · Actuator gating</text>
+      <text x="336" y="258" fill="#1d1d1f">spray only when dry · hold ACCD in blast window</text>
+    </g>
+    <rect x="740" y="95" width="240" height="110" rx="18" fill="#1d1d1f"/>
+    <text x="860" y="138" fill="#fff" font-size="17" font-weight="700" text-anchor="middle">Green light timing</text>
+    <text x="860" y="162" fill="#aeaeb2" font-size="12.5" text-anchor="middle">start = next dry window − lag H</text>
+    <text x="860" y="182" fill="#aeaeb2" font-size="12.5" text-anchor="middle">θ_eff = θ(stage)·(1 + κ·S_blast)</text>
+    <g fill="none" stroke="#c7c7cc" stroke-width="3">
+      <path d="M210 150 C265 150 265 56 318 56"/><path d="M210 150 H318"/><path d="M210 150 C265 150 265 244 318 244"/>
+      <path d="M210 253 C270 253 270 160 318 150" stroke-dasharray="5 5"/>
+      <path d="M620 56 C690 56 680 130 738 130"/><path d="M620 150 H738"/><path d="M620 244 C690 244 680 170 738 170"/>
+    </g>
+  </svg>
+  </div>
+  <div class="grid g3" style="margin-top:20px">
+    <div class="card"><h3 style="color:#0b57b8">R1</h3><p style="margin:0;font-size:15.5px"><span class="zh">ERA5 的 Tmax 偏低，≥35 °C 時數大約少算一半。現場溫度可以直接修正熱逆境項。這需要田間資料，屬於未來工作。</span><span class="en">ERA5 runs low on Tmax and undercounts hours ≥ 35 °C by about half. Field temperature corrects the heat term directly. Needs field data: future work.</span></p></div>
+    <div class="card"><h3 style="color:#a35a00">R2</h3><p style="margin:0;font-size:15.5px"><span class="zh">葉面濕潤本身不是非生物逆境，而是稻熱病的感染條件。所以另開一條「生物性」子壓力，用病害資料驗證，不併進產量模型。C3 定出的門檻就是這條通道的開關。</span><span class="en">Wetness is not an abiotic stress; it is the infection condition for rice blast. So it becomes a separate biotic sub-stress, validated on disease data, not yield. The C3 threshold is this channel's switch.</span></p></div>
+    <div class="card"><h3 style="color:#1a7f37">R3</h3><p style="margin:0;font-size:15.5px"><span class="zh">（提案）葉面濕時不施用（避免沖刷），往後順延到下一個乾燥窗口，綠燈的開始時間也跟著往後推。乙烯參與水稻對病原菌的防禦，所以稻熱病高風險時段要提高門檻、少抑制乙烯。</span><span class="en">(Proposed) No application while the leaf is wet (wash-off risk); wait for the next dry window, and push the green-light start back with it. Ethylene supports rice defence against pathogens, so in high blast-risk windows we raise the threshold and suppress ethylene less.</span></p></div>
+  </div>
+  <p style="font-size:14px;color:var(--muted);margin-top:18px"><span class="zh">參考：Sugawara &amp; Kobayashi 2021（稻葉濕潤感測器，水平安裝、直方圖定門檻）；BLASTAM（Koshimizu 1988，濕潤時數 × 溫度）；Sentelhas 等（濕潤感測器的安裝與校正）。</span><span class="en">References: Sugawara &amp; Kobayashi 2021 (rice leaf-wetness sensor, horizontal mount, histogram threshold); BLASTAM (Koshimizu 1988, wetness hours × temperature); Sentelhas et al. (wetness sensor deployment and calibration).</span></p>
+</div></section>
+
+<!-- ============ TROUBLE ============ -->
+<section id="trouble" class="alt"><div class="wrap">
+  <h2><small>08</small><span class="zh">疑難排解</span><span class="en">Troubleshooting</span></h2>
+  <div class="tbl"><table>
+    <tr><th style="width:34%"><span class="zh">症狀</span><span class="en">Symptom</span></th><th><span class="zh">依序試</span><span class="en">Try in order</span></th></tr>
+    <tr><td><code># NO REPLY</code></td><td><span class="zh">① 電表量感測器 V+ 對 GND 的電壓，是否在規格內 ② 所有 GND 是否共地 ③ 對調 GPIO16/17 兩條線 ④ 對調 A/B ⑤ 規格卡的位址若不是 1，改 <code>MODBUS_ADDR</code> ⑥ 換另一個 RS485 模組（有 3 個）</span><span class="en">① Multimeter: sensor V+ to GND within spec? ② All grounds joined? ③ Swap the GPIO16/17 wires ④ Swap A/B ⑤ If the address is not 1, set <code>MODBUS_ADDR</code> ⑥ Try another RS485 module (there are 3)</span></td></tr>
+    <tr><td><code># SHT NOT FOUND</code></td><td><span class="zh">檢查 SDA=21、SCL=22 有沒有接反；<code>SHT_MODEL</code> 是否正確；SHT 的 VIN 接 3V3。</span><span class="en">Check SDA = 21 and SCL = 22 aren't swapped, <code>SHT_MODEL</code> is right, and SHT VIN is on 3V3.</span></td></tr>
+    <tr><td><span class="zh">連接埠找不到</span><span class="en">No serial port</span></td><td><span class="zh">換一條確定能傳資料的線（有些 USB 線只能充電）；Mac 舊系統可能要裝 CH340 驅動；關閉 Serial Monitor 再跑 logger。</span><span class="en">Try a cable known to carry data (some only charge). Older macOS may need the CH340 driver. Close Serial Monitor before running the logger.</span></td></tr>
+    <tr><td><span class="zh">上傳卡在 Connecting…</span><span class="en">Upload stuck at Connecting…</span></td><td><span class="zh">上傳時按住 BOOT 鍵 2 秒。</span><span class="en">Hold BOOT for 2 s during upload.</span></td></tr>
+    <tr><td><span class="zh"><code>ok</code> 偶爾是 0</span><span class="en"><code>ok</code> sometimes 0</span></td><td><span class="zh">偶爾 1–2% 正常。若很頻繁，代表接觸不良：重新鎖緊端子、換杜邦線，並把 A/B 兩條線互相絞在一起。</span><span class="en">1–2 % is normal. If frequent, a contact is bad: re-tighten terminals, swap jumpers, twist the A/B pair together.</span></td></tr>
+    <tr><td><span class="zh">溫度數值很怪（例如 6553）</span><span class="en">Odd temperature (e.g. 6553)</span></td><td><span class="zh">暫存器的縮放或順序不同，對照說明書修改 <code>REG_START</code>／<code>REG_COUNT</code> 或 config 的欄位對應。</span><span class="en">Register scaling or order differs. Check the manual and adjust <code>REG_START</code> / <code>REG_COUNT</code> or the config mapping.</span></td></tr>
+    <tr><td><span class="zh">完全卡住</span><span class="en">Totally stuck</span></td><td><span class="zh">拍下接線照片、序列埠輸出、規格卡，傳到群組。不要在接著 12 V 的情況下亂換線。</span><span class="en">Post a photo of the wiring, the serial output and the spec card to the group. Don't move wires around while 12 V is connected.</span></td></tr>
+  </table></div>
+</div></section>
+
+<footer><div class="wrap">
+  iGEM 2026 · AIoT Sensors · Leaf Sensor Bench ·
+  <span class="zh">右側測試圖為模擬示意，不是實測數據。</span><span class="en">Test figures are simulated examples, not measurements.</span>
+</div></footer>
+
+<script>
+(function(){
+  function get(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  var root=document.documentElement;
+  function lang(l){root.setAttribute('data-lang',l);root.lang=(l==='zh'?'zh-Hant':'en');
+    document.querySelectorAll('.seg button').forEach(function(b){b.classList.toggle('on',b.dataset.set===l)});set('lsb-lang',l)}
+  document.querySelectorAll('.seg button').forEach(function(b){b.onclick=function(){lang(b.dataset.set)}});
+  lang(get('lsb-lang')||'zh');
+
+  document.querySelectorAll('ol.steps[data-ck]').forEach(function(ol){
+    ol.querySelectorAll('input[type=checkbox]').forEach(function(cb,i){
+      var key='lsb-ck-'+ol.dataset.ck+'-'+i, li=cb.closest('li');
+      cb.checked=get(key)==='1'; li.classList.toggle('done',cb.checked);
+      cb.onchange=function(){set(key,cb.checked?'1':'0');li.classList.toggle('done',cb.checked)};
+    });
+  });
+  document.querySelectorAll('#specTable input').forEach(function(inp){
+    var key='lsb-spec-'+inp.dataset.s; inp.value=get(key)||''; inp.oninput=function(){set(key,inp.value)};
+  });
+  document.querySelectorAll('#pf button').forEach(function(b){b.onclick=function(){
+    document.querySelectorAll('#pf button').forEach(function(x){x.classList.toggle('on',x===b)});
+    var f=b.dataset.f;
+    document.querySelectorAll('#partsGrid .part').forEach(function(p){p.style.display=(f==='all'||p.dataset.k===f)?'':'none'});
+  }});
+})();
+</script>
+</body>
+</html>
